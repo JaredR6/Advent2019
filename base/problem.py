@@ -11,8 +11,8 @@ def solve2(input):
 
 # Read tips:
 # csv of numbers: readProblem()
-# csv of words: readProblem(is_int=False)
-# \n-sep words: readProblem(is_int=False, delim='\n')
+# csv of words: readProblem(as_int=False)
+# \n-sep words: readProblem(as_int=False, delim='\n')
 # (Further processing may be required)
 
 def execute(prefix='.'):
