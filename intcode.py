@@ -1,21 +1,29 @@
 from functools import wraps
 
 class Argument:
-  def __init__(self, io, value, mode):
+  def __init__(self, io, value, mode, base):
     self.io = io
     self.value = int(value)
     self.mode = mode
+    self.base = base
 
   def get(self):
     if self.mode == '0':
       return self.io[self.value]
     elif self.mode == '1':
       return self.value
+    elif self.mode == '2':
+      return self.io[self.base + self.value]
     else:
       raise ValueError("Invalid mode within argument get")
 
-  def val(self):
-    return self.value
+  def set(self, value):
+    if self.mode == '0':
+      self.io[self.value] = value
+    elif self.mode == '2':
+      self.io[self.base + self.value] = value
+    else:
+      raise TypeError("Invalide mode within argument set")
 
   def __repr__(self):
     return f"{self.value} [{self.mode}]"
@@ -69,6 +77,9 @@ class PreparedIO(IO):
 class TapeIO(PreparedIO):
   def __init__(self, io, noun='-', verb='-'):
     super().__init__(io.copy())
+    if len(self.io) < 10000:
+      self.io += [0 for i in range(10000 - len(self.io) + 1)]
+    self.base = 0
     if noun != '-':
       self.io[1] = noun
     if verb != '-':
@@ -128,7 +139,9 @@ class Instance:
           self.mode_stack = [c for c in op[:-2]]
       else:
         mode = self.mode_stack.pop()
-        self.args.append(Argument(self.tape, self.tape.read()[0], mode))
+        # Unfortunately, since I don't have access to individual tape locations,
+        # I have to pass the entire tape to the argument.
+        self.args.append(Argument(self.tape, self.tape.read()[0], mode, self.tape.base))
 
     if not self.active or len(self.mode_stack) == 0:
       self.active = self.operation.compute(self.args)
@@ -158,14 +171,14 @@ def compileOps(tape, io):
   ops = dict()
 
   @neverpending
-  def add(io, x, y, i): io[i.val()] = x.get() + y.get()
+  def add(x, y, i): i.set(x.get() + y.get())
 
   @neverpending
-  def mul(io, x, y, i): io[i.val()] = x.get() * y.get()
+  def mul(x, y, i): i.set(x.get() * y.get())
 
-  def inp(tape, io, i):
+  def inp(io, i):
     val, valid = io.read()
-    if valid: tape[i.val()] = val
+    if valid: i.set(val)
     return valid
 
   @neverpending
@@ -180,30 +193,28 @@ def compileOps(tape, io):
     if (t.get() == 0): io.i = a.get()
 
   @neverpending
-  def ltc(io, x, y, a): io[a.val()] = (1 if (x.get() < y.get()) else 0)
+  def ltc(x, y, a): a.set(1 if (x.get() < y.get()) else 0)
 
   @neverpending
-  def eqc(io, x, y, a): io[a.val()] = (1 if (x.get() == y.get()) else 0)
+  def eqc(x, y, a): a.set(1 if (x.get() == y.get()) else 0)
 
   @neverpending
   def end(io): io.terminate()
 
-  ops[1] =  Opcode(add, 3, tape)
-  ops[2] =  Opcode(mul, 3, tape)
-  ops[3] =  Opcode(inp, 1, tape, io)
+  @neverpending
+  def bsm(io, i): io.base += i.get();
+
+  ops[1] =  Opcode(add, 3)
+  ops[2] =  Opcode(mul, 3)
+  ops[3] =  Opcode(inp, 1, io)
   ops[4] =  Opcode(otp, 1, io)
   ops[5] =  Opcode(jit, 2, tape)
   ops[6] =  Opcode(jif, 2, tape)
-  ops[7] =  Opcode(ltc, 3, tape)
-  ops[8] =  Opcode(eqc, 3, tape)
+  ops[7] =  Opcode(ltc, 3)
+  ops[8] =  Opcode(eqc, 3)
+  ops[9] =  Opcode(bsm, 1, tape)
   ops[99] = Opcode(end, 0, tape)
   return ops
-
-def arrayFromFile(file):
-  with open(file, "r") as f:
-    inst = f.read().strip()
-  tape = [int(s) for s in inst.split(',')]
-  return tape
 
 def oneTimeRun(tape, noun='-', verb='-', prep=IO()):
   return Instance(tape, noun=noun, verb=verb, prep=prep).fullsim()

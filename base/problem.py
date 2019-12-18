@@ -1,31 +1,41 @@
-import sys
+import os, sys
+curdir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, curdir + '\\..')
+import adventutil
 
 def solve(input):
   return 42
 
-def execute(prefix):
+def solve2(input):
+  return 42
+
+# Read tips:
+# csv of numbers: readProblem()
+# csv of words: readProblem(is_int=False)
+# \n-sep words: readProblem(is_int=False, delim='\n')
+# (Further processing may be required)
+
+def execute(prefix='.'):
+  adventutil.setPrefix(prefix)
 
   # Test
 
-  with open(f"{prefix}//test.txt", "r") as f:
-    test_inst = f.read().strip()
-    test_result = solve(test_inst)
-    print(f"Test: {test_result}")
+  test_inst = adventutil.readTest()
+  test_result = solve(test_inst)
+  print(f"Test: {test_result}")
 
   # Part 1
 
-  with open(f"{prefix}//input.txt", "r") as f:
-    inst = f.read().strip()
-    result = solve(inst)
-    print(f"Part 1: {result}")
+  inst = adventutil.readProblem()
+  result = solve(inst)
+  print(f"Part 1: {result}")
 
   # Part 2
 
-  with open(f"{prefix}//input2.txt", "r") as f:
-    target = f.read().strip()
-    result = solve(inst)
-    print(f"Part 2: {result}")
+  # inst = adventutil.readProblem('2')
+  result = solve2(inst)
+  print(f"Part 2: {result}")
 
 
 if __name__ == "__main__":
-  execute(".")
+  execute()

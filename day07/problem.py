@@ -1,7 +1,7 @@
 import os, sys
 curdir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, curdir + '/../intcode')
-import intcode
+sys.path.insert(1, curdir + '\\..')
+import adventutil, intcode
 from itertools import permutations
 
 
@@ -37,17 +37,18 @@ def solve2(input):
     hi = max(hi, data)
   return hi
 
-def execute(prefix):
+def execute(prefix='.'):
+  adventutil.setPrefix(prefix)
 
   # Part 1
 
-  tape = intcode.arrayFromFile(f"{prefix}//input.txt")
+  tape = adventutil.readProblem()
   result = solve(tape)
   print(f"Part 1: {result}")
 
   # Test
 
-  test_tape = intcode.arrayFromFile(f"{prefix}//test.txt")
+  test_tape = adventutil.readTest()
   result = solve2(test_tape)
   print(f"Test: {result}")
 
@@ -58,4 +59,4 @@ def execute(prefix):
 
 
 if __name__ == "__main__":
-  execute(".")
+  execute()

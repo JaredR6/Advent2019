@@ -1,7 +1,7 @@
 import os, sys
 curdir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(1, curdir + '/..')
-import adventutil.adventutil as util
+sys.path.insert(1, curdir + '\\..')
+import adventutil
 from PIL import Image, ImageColor
 
 def solve(input):
@@ -37,12 +37,13 @@ def solve2(input):
         px[i, j] = (255, 255, 255)
   return drawn
 
-def execute(prefix):
+def execute(prefix='.'):
+  adventutil.setPrefix(prefix)
 
   # Part 1
 
-  inst = util.readProblemStr(f"{prefix}//input.txt")
-  x, y = [int(i) for i in util.readProblem(f"{prefix}//input2.txt")]
+  inst = adventutil.readProblem(delim='')
+  x, y = [int(i) for i in adventutil.readProblem(2)]
   result = solve((inst, x, y))
   print(f"Part 1: {result}")
 
@@ -52,4 +53,4 @@ def execute(prefix):
   result.show()
 
 if __name__ == "__main__":
-  execute(".")
+  execute()

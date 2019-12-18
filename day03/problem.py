@@ -1,4 +1,7 @@
-import sys
+import os, sys
+curdir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, curdir + '\\..')
+import adventutil
 
 # Postmortem: "begin -> next" and "start -> end" are very confusing
 
@@ -102,28 +105,25 @@ def solve(input):
 
   return minmat, minwalk
 
-def execute(prefix):
+def execute(prefix='.'):
+  adventutil.setPrefix(prefix)
 
   # Test
 
-  with open(f"{prefix}//test.txt", "r") as f:
-    test_inst = f.read().strip()
-    test_wires = test_inst.split('\n')
-    test_wires[0] = test_wires[0].split(',')
-    test_wires[1] = test_wires[1].split(',')
-    test_result = solve(test_wires)
-    print(f"Test: {test_result}")
+  test_inst = adventutil.readTest(as_int=False, delim='\n')
+  test_inst[0] = test_inst[0].split(',')
+  test_inst[1] = test_inst[1].split(',')
+  test_result = solve(test_inst)
+  print(f"Test: {test_result}")
 
-  # Unique
+  # Problem
 
-  with open(f"{prefix}//input.txt", "r") as f:
-    inst = f.read().strip()
-    wires = inst.split('\n')
-    wires[0] = wires[0].split(',')
-    wires[1] = wires[1].split(',')
-    result = solve(wires)
-    print(f"Result: {result}")
+  inst = adventutil.readProblem(as_int=False, delim='\n')
+  inst[0] = inst[0].split(',')
+  inst[1] = inst[1].split(',')
+  result = solve(inst)
+  print(f"Result: {result}")
 
 
 if __name__ == "__main__":
-  execute(".")
+  execute()

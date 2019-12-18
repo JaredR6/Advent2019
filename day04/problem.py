@@ -1,4 +1,7 @@
-import sys
+import os, sys
+curdir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(1, curdir + '\\..')
+import adventutil
 
 def has_double(s):
   for i in range(len(s)-1):
@@ -35,15 +38,15 @@ def solve(input):
       countb += 1
   return counta, countb
 
-def execute(prefix):
+def execute(prefix='.'):
+  adventutil.setPrefix(prefix)
 
   # Part 1
 
-  with open(f"{prefix}//input.txt", "r") as f:
-    inst = f.read().strip().split('-')
-    result = solve(inst)
-    print(f"Result: {result}")
+  inst = adventutil.readProblem(delim='-')
+  result = solve(inst)
+  print(f"Result: {result}")
 
 
 if __name__ == "__main__":
-  execute(".")
+  execute()
