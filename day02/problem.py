@@ -6,17 +6,13 @@ import intcode
 
 def execute(prefix):
 
-    with open(f"{prefix}//test.txt", "r") as f:
-        test_inst = f.read().strip()
-        test_tape = [int(s) for s in test_inst.split(',')]
-        test_result = intcode.compute(test_tape)
-        print(f"Test: {test_result}")
+    test_tape = intcode.arrayFromFile(f"{prefix}//test.txt")
+    test_result = intcode.oneTimeRun(test_tape)
+    print(f"Test: {test_result}")
 
-    with open(f"{prefix}//input.txt", "r") as f:
-        inst = f.read().strip()
-        tape = [int(s) for s in inst.split(',')]
-        result = intcode.compute(tape)
-        print(f"Part 1: {result}")
+    tape = intcode.arrayFromFile(f"{prefix}//input.txt")
+    result = intcode.oneTimeRun(tape)
+    print(f"Part 1: {result}")
 
     with open(f"{prefix}//input2.txt", "r") as f:
         target = int(f.read().strip())
@@ -25,7 +21,7 @@ def execute(prefix):
     found = False
     for i in range(100):
         for j in range(100):
-            if intcode.compute(tape, i, j) == target:
+            if intcode.oneTimeRun(tape, noun=i, verb=j) == target:
                 found = True
                 print(f"Part 2: {i} {j}")
                 break
